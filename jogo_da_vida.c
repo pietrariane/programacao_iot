@@ -8,16 +8,16 @@
 
 // Declara uma função que imprime a matriz na tela.
 void imprimirMatriz(char matriz[LINHAS][COLUNAS], int geracao) { 
-    printf("Geração %d:\n", geracao);
+    printf("Geração %d:\n", geracao); // Mostra qual geração está sendo exibida.
     for (int i = 0; i < LINHAS; i++) {
         for (int j = 0; j < COLUNAS; j++) {
             printf("%c ", matriz[i][j]);
         }
-        printf("\n");
-    }
+        printf("\n"); // estrutura a matriz e adiciona o \n para quebrar a linha
+    } 
 }
 
-void inicializarManual(char matriz[LINHAS][COLUNAS]) {
+void inicializarManual(char matriz[LINHAS][COLUNAS]) { //Permite ao usuário definir manualmente as posições das células vivas.
     int x, y;
     char opcao;
 
