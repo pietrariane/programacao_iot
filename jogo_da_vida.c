@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Define constantes para facilitar alterações no tamanho da matriz e no número máximo de gerações.
 #define LINHAS 10
 #define COLUNAS 10
 #define MAX_GERACOES 100
 
-void imprimirMatriz(char matriz[LINHAS][COLUNAS], int geracao) {
+// Declara uma função que imprime a matriz na tela.
+void imprimirMatriz(char matriz[LINHAS][COLUNAS], int geracao) { 
     printf("Geração %d:\n", geracao);
     for (int i = 0; i < LINHAS; i++) {
         for (int j = 0; j < COLUNAS; j++) {
