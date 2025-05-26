@@ -1,0 +1,117 @@
+//Código Desafio Jogo da Vida
+//Universidade Federal do Rio Grande do Norte
+//Instituto Metrópole Digital
+//Curso Técnico em Internet das Coisas
+//Disciplina: Programação para IoT
+//Docente: Jean Mario Moreira de Lima
+//Discentes: Gustavo Lucena Alves de Moraes; Leonardo Nascimento Agra; Pietra Riane Nascimento Melo
+
+//-> Início do Código<-
+
+//Adição de Bibliotecas
+#include <stdio.h>
+
+//Definição de Constantes
+#define LINHAS 10                                                                                  //Número de Linhas
+#define COLUNAS 10                                                                                 //Número de Colunas
+#define MAX_GERACOES 100                                                                           //Número máximo de gerações por simulação
+
+//Definição da função "imprimirMatriz" (está função serve para imprimir a matriz correspondente à geração atual)
+void imprimirMatriz(char matriz[LINHAS][COLUNAS], int geracao) {                                   //Parâmetros da função: variável 'char' na forma de 'matriz', e variável 'int' geracao
+    printf("Geração %d:\n", geracao);                                                              //Mostra qual geração está sendo exibida
+    for (int i = 0; i < LINHAS; i++) {                                                             //Laços para percorrer a matriz
+        for (int j = 0; j < COLUNAS; j++) {                                                        //i para linhas, j para colunas
+            printf("%c ", matriz[i][j]);                                                           //Mostra se a célula está viva ('O') ou morta ('*')
+        }
+        printf("\n");                                                                              //Quebra de linha
+    }
+}
+
+//Definição da função "inicializarManual" (Está função serve para que o usuário insira os valores de entrada para que o jogo funcione)
+void inicializarManual(char matriz[LINHAS][COLUNAS]) {                                             //Parâmetros da função: variável 'char matriz' que será inicializado com células mortas e vivas conforme entrada do usuário
+    int x, y;                                                                                      //Inicialização variáveis 'x e y', correspondem às coordenadas digitadas pelo usuário para indicar células vivas
+
+    for (int i = 0; i < LINHAS; i++)                                                               //Laço que percorre a matriz
+        for (int j = 0; j < COLUNAS; j++)                                                          //i para linhas, j para colunas
+            matriz[i][j] = '*';                                                                    //Inicializa todas as posições como mortas ('*')
+
+    printf("Digite as coordenadas das células vivas (formato: linha coluna).\n");                  //Instrução para o usuário
+    printf("Exemplo: 2 3\nDigite -1 -1 para parar.\n");                                            //Instrução para o usuário
+
+    int continuar = 1;                                                                             //Variável de controle 'int continuar', controla se o loop deve continuar solicitando coordenadas
+    while (continuar) {                                                                            //Início do laço utilizando a variável 'continuar' como parâmetro de parada (a ideia é que o código continue solicitando ao usuário as coordenadas das células vivas, até que seja digitado '-1 -1'
+        printf("Célula viva em: ");                                                                //Comando que será feito enquanto o laço funcionar
+        scanf("%d %d", &x, &y);                                                                    //Comando que será feito enquanto o laço funcionar
+        continuar = !(x == -1 && y == -1);                                                         //Comando de parada, enquanto o usuário não digitar -1 -1, continua pedindo coordenadas
+
+        if (continuar) {                                                                           //Definição da condicionoal com base na variável 'continuar'
+            if (x >= 0 && x < LINHAS && y >= 0 && y < COLUNAS) {                                   //Se as coordenadas forem válidas, define a célula como viva ('O')
+                matriz[x][y] = 'O';                                                                //Atribuí o caractere 'O' à uma célula da matriz
+            } else {
+                printf("Coordenadas inválidas!\n");                                                //Comando caso o usuário insira coordenadas inválidas
+            }
+        }
+    }
+}
+
+//Definição da função "contarVizinhosVivos" (está função serve para contar quantas células vivas estão ao redor de outra célula)
+int contarVizinhosVivos(char matriz[LINHAS][COLUNAS], int x, int y) {                              //Parâmetros da função: 'char matriz' é a matriz atual a ser analisada; 'int x' e 'int y' é o valor das coordenadas
+    int vivos = 0;                                                                                 //Variável 'vivos' é o contador de células vivas ao redor, nesta variável serão armazenados as quantidades de células vivas
+    for (int i = -1; i <= 1; i++) {                                                                //Definição de laço, i e j deslocamentos de -1, 0, +1 para verificar os vizinhos
+        for (int j = -1; j <= 1; j++) {                                                            //Percorre toda a matriz
+            if (!(i == 0 && j == 0)) {                                                             //Ddefinição da condicional, analisa o estado da célula atual de acordo com os parâmetros 'i' e 'j'
+                int nx = x + i;                                                                    //Variável 'int nx' coordenada do vizinho sendo analisado (gera a coordenada da célula no "eixo x")
+                int ny = y + j;                                                                    //Variável 'int ny' coordenada do vizinho sendo analisado (gera a coordenada da célula no "eixo y")
+                if (nx >= 0 && nx < LINHAS && ny >= 0 && ny < COLUNAS && matriz[nx][ny] == 'O') {  //Definição da condicional, compara os valores das coordenadas 'nx' e 'ny' com os valores armazenados nas linhas e colunas da matriz (Notar que ele compara com o caractere 'O')
+                    vivos++;                                                                       //Se o vizinho estiver dentro da matriz e for vivo, incrementa a variável 'vivos'
+                }
+            }
+        }
+    }
+    return vivos;                                                                                  //Retorna o valor da variável 'vivos'
+}
+
+//Definição da função "atualizarMatriz" (Está função serve para atualizar a matriz atual, para uma nova, de acordo com a geração passada e os novos valores das células da matriz)
+void atualizarMatriz(char matriz[LINHAS][COLUNAS], char nova[LINHAS][COLUNAS]) {                  //Parêmetros da função: variável 'char matriz', corresponde à matriz "antiga"; variável 'char nova' é a matriz onde será armazenada a nova geração
+    for (int i = 0; i < LINHAS; i++) {                                                            //Definção do laço para percorrer a matriz
+        for (int j = 0; j < COLUNAS; j++) {                                                       //i para linhas, j para colunas
+            int vizinhos = contarVizinhosVivos(matriz, i, j);                                     //Variável 'int vizinhos' é a quantidade de vizinhos vivos da célula (i, j)
+            if (matriz[i][j] == 'O') {                                                            //Definição de condicional, se a célula está viva (ou seja 'O'), sobrevive apenas com 2 ou 3 vizinhos.
+                nova[i][j] = (vizinhos == 2 || vizinhos == 3) ? 'O' : '*';                        //A "nova célula" da matriz 'nova', recebe o valor 'O' (ou seja, continua viva) se a célula estiver viva e tiver 2 ou 3 vizinhos, caso contrário, continua morta '*'
+            } else {
+                nova[i][j] = (vizinhos == 3) ? 'O' : '*';                                         //A "nova célula" da matriz 'nova', recebe o valor 'O' (ou seja, nasce), se a célualr estiver morta e tiver exatamente 3 vizinhos vivos, caso contrário, continua morta '*'
+            }
+        }
+    }
+}
+
+//Definição da função 'main'
+int main() {
+    char atual[LINHAS][COLUNAS];                                                                  //Variável 'char atual' como sendo uma matriz de células da geração atual
+    char proxima[LINHAS][COLUNAS];                                                                //Variável 'char proxima' como sendo uma matriz onde é calculada a próxima geração antes de ser copiada
+    int geracoes;                                                                                 //Variável 'int geracoes' é o número total de gerações que o usuário quer simular
+
+    printf("Quantas gerações deseja simular (max %d)? ", MAX_GERACOES);                           //Comando que será exibido ao usuário
+    scanf("%d", &geracoes);                                                                       //Lê o número de gerações e limita ao máximo de 100
+    if (geracoes > MAX_GERACOES) geracoes = MAX_GERACOES;                                         //Definição da condicional, limita o número de gerações à 100
+
+    inicializarManual(atual);                                                                     //Comando para chamar a função 'inicializarManual' para inicializar a matriz com entrada manual, ou seja, chama a função que serve para o usuário inserir os dados de entrada
+
+    getchar();                                                                                    //Comando que limpa o '\n' deixado pelo scanf acima
+
+    for (int g = 1; g <= geracoes; g++) {                                                         //Definição do laço, 'int g' é o número da geração atual, inicializada em 1 (este laço serve para imprimir e atualizar a matriz de geração g, a cada geração
+        imprimirMatriz(atual, g);                                                                 //Comando que chama a função 'imprimirMatriz', ou seja, ela imprime a matriz da geração g
+        atualizarMatriz(atual, proxima);                                                          //Comando que chama a função 'atualizarMatriz', e calcula a próxima geração com base na atual
+
+        for (int i = 0; i < LINHAS; i++)                                                          //Definição de laço, percorre a matriz
+            for (int j = 0; j < COLUNAS; j++)                                                     //i para linhas, j para colunas
+                atual[i][j] = proxima[i][j];                                                      //Copia a matriz 'proxima' para matriz 'atual', atualizando o estado do jogo
+
+        printf("Pressione ENTER para continuar...\n");                                            //Comando que será exibido ao usuário
+        getchar();                                                                                //Pausa o programa para o usuário ver cada geração, aguardando ENTER para ir para a próxima geração
+    }
+
+    return 0;                                                                                     //Fim da função 'main'
+}
+
+//->Fim do Código<- 
